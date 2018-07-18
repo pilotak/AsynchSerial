@@ -8,8 +8,9 @@ Wrapper around mbed UARTSerial with added timeouts
 AsynchSerial serial(PD_8, PD_9, 9600);
 EventQueue queue;
 
+char buffer[20];
+
 void getData() {
-    char buffer[20];
     int16_t len = serial.read(buffer, sizeof(buffer));
 
     if (len > 0) {
@@ -38,9 +39,9 @@ int main() {
     Thread eventThread;
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
+    serial.init();
     serial.attach(callback(rxCb), AsynchSerial::RX);
     serial.attach(callback(txCb), AsynchSerial::TX);
-    serial.init();
 
     while (1) {
     }

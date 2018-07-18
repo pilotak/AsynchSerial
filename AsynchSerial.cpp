@@ -97,7 +97,7 @@ int16_t AsynchSerial::getc() {
     }
 }
 
-int16_t AsynchSerial::putc(unsigned char c) {
+int16_t AsynchSerial::putc(char c) {
     pollfh fhs;
     fhs.fh = &_serial;
     fhs.events = POLLOUT;
@@ -112,7 +112,7 @@ int16_t AsynchSerial::putc(unsigned char c) {
     }
 }
 
-int16_t AsynchSerial::read(unsigned char *data, int16_t size) {
+int16_t AsynchSerial::read(char *data, int16_t size) {
     int16_t i = 0;
 
     if (data) {
@@ -145,7 +145,7 @@ int16_t AsynchSerial::read(unsigned char *data, int16_t size) {
     return i;
 }
 
-int16_t AsynchSerial::write(const unsigned char *data, int16_t size) {
+int16_t AsynchSerial::write(const char *data, int16_t size) {
     int16_t i = 0;
 
     if (data) {
