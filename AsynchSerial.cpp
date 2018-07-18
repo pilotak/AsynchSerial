@@ -31,7 +31,7 @@ AsynchSerial::AsynchSerial(PinName tx, PinName rx, uint32_t baud):
     _bits(8),
     _parity(SerialBase::None),
     _stop_bits(1),
-    _read_rs(false) {
+    _read_flag(false) {
     _timeout = get_timeout(baud);
     _serial.set_blocking(false);
 }
@@ -74,10 +74,9 @@ uint32_t AsynchSerial::get_timeout(uint32_t baud) {
 }
 
 void AsynchSerial::rxCb() {
-    if ((_serial.poll(POLLIN) & POLLIN) && !_read_rs) {
-        _read_rs = true;
-
+    if ((_serial.poll(POLLIN) & POLLIN) && !_read_flag) {
         if (_cb[RX]) {
+            _read_flag = true;
             _cb[RX].call();
         }
     }
@@ -116,34 +115,49 @@ int16_t AsynchSerial::putc(char c) {
 int16_t AsynchSerial::read(char *data, int16_t size) {
     int16_t i = 0;
 
-    for (; i < size; i++) {
-        int16_t c = getc();
+    if (data) {
+        for (; i < size; i++) {
+            int16_t c = getc();
 
-        if (c < 0) {
-            if (i > 0) {
-                break;
+            if (c < 0) {  // end of reading
+                if (i > 0) {  // got data
+                    break;
+
+                } else {  // no data read
+                    i = -1;
+                }
 
             } else {
-                _read_rs = false;
-                return -1;
+                data[i] = c;
             }
-
-        } else {
-            data[i] = c;
         }
+
+        if (i == size) {  // in case buffer is shorter than received data
+            flush();
+        }
+
+    } else {
+        i = -2;
     }
 
-    _read_rs = false;
+    _read_flag = false;
+
     return i;
 }
 
 int16_t AsynchSerial::write(const char *data, int16_t size) {
     int16_t i = 0;
 
-    for (; i < size; i++) {
-        if (putc(data[i]) < 0) {
-            return -1;
+    if (data) {
+        for (; i < size; i++) {
+            if (putc(data[i]) < 0) {
+                i = -1;
+                break;
+            }
         }
+
+    } else {
+        i = -2;
     }
 
     if (_cb[TX]) {
@@ -151,4 +165,12 @@ int16_t AsynchSerial::write(const char *data, int16_t size) {
     }
 
     return i;
+}
+
+void AsynchSerial::flush() {
+    int16_t i = getc();
+
+    while (i > 0) {
+        i = getc();
+    }
 }

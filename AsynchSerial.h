@@ -37,12 +37,11 @@ class AsynchSerial {
   AsynchSerial(PinName tx, PinName rx, uint32_t baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
   void init();
   void attach(Callback<void()> cb, Callback_type type = RX);
-  int16_t getc();
-  int16_t putc(char c);
-  void baud(uint32_t baud);
-  void format(uint8_t bits = 8, SerialBase::Parity parity = SerialBase::None, uint8_t stop_bits = 1);
   int16_t read(char *data, int16_t size);
   int16_t write(const char *data, int16_t size);
+  void flush();
+  void baud(uint32_t baud);
+  void format(uint8_t bits = 8, SerialBase::Parity parity = SerialBase::None, uint8_t stop_bits = 1);
 
 #if DEVICE_SERIAL_FC
   void set_flow_control(SerialBase::Flow type, PinName flow1 = NC, PinName flow2 = NC);
@@ -55,12 +54,14 @@ class AsynchSerial {
   UARTSerial _serial;
   Callback<void()> _cb[2];
   void rxCb();
+  int16_t getc();
+  int16_t putc(char c);
 
   uint32_t _baud;
   uint8_t _bits;
   SerialBase::Parity _parity;
   uint8_t _stop_bits;
-  bool _read_rs;
+  bool _read_flag;
   uint32_t _timeout;
 };
 
