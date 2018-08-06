@@ -31,7 +31,8 @@ AsynchSerial::AsynchSerial(PinName tx, PinName rx, uint32_t baud):
     _bits(8),
     _parity(SerialBase::None),
     _stop_bits(1),
-    _read_flag(false) {
+    _read_flag(false),
+    _extra_timeout(0) {
     _timeout = get_timeout(baud);
     _serial.set_blocking(false);
 }
@@ -54,7 +55,8 @@ void AsynchSerial::set_flow_control(SerialBase::Flow type, PinName flow1, PinNam
 }
 #endif
 
-void AsynchSerial::init() {
+void AsynchSerial::init(uint8_t extra_timeout) {
+    _extra_timeout = extra_timeout;
     _serial.sigio(callback(this, &AsynchSerial::rxCb));
 }
 
@@ -69,6 +71,8 @@ uint32_t AsynchSerial::get_timeout(uint32_t baud) {
     if (timeout < 1) {  // timeout needs to be at least 1ms
         timeout = 1;
     }
+
+    timeout += _extra_timeout;
 
     return timeout;
 }

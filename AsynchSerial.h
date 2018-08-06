@@ -35,7 +35,7 @@ class AsynchSerial {
   } Callback_type;
 
   AsynchSerial(PinName tx, PinName rx, uint32_t baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-  void init();
+  void init(uint8_t extra_timeout = 0);
   void attach(Callback<void()> cb, Callback_type type = RX);
   int16_t read(unsigned char *data, int16_t size);
   int16_t write(const unsigned char *data, int16_t size);
@@ -63,6 +63,7 @@ class AsynchSerial {
   uint8_t _stop_bits;
   bool _read_flag;
   uint32_t _timeout;
+  uint8_t _extra_timeout;
 };
 
 #endif
