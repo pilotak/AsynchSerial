@@ -47,6 +47,8 @@ void AsynchSerial::format(uint8_t bits, SerialBase::Parity parity, uint8_t stop_
     _bits = bits;
     _parity = parity;
     _stop_bits = stop_bits;
+
+    _timeout = get_timeout(_baud);
 }
 
 #if DEVICE_SERIAL_FC
